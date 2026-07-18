@@ -2,7 +2,10 @@ package com.example.mariooffline
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.webkit.ConsoleMessage
+import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -30,9 +33,24 @@ class MainActivity : AppCompatActivity() {
         settings.loadWithOverviewMode = true
         settings.useWideViewPort = true
 
+        @Suppress("DEPRECATION")
+        settings.allowFileAccessFromFileURLs = true
+        @Suppress("DEPRECATION")
+        settings.allowUniversalAccessFromFileURLs = true
+        settings.cacheMode = WebSettings.LOAD_DEFAULT
+
         webView.webViewClient = WebViewClient()
 
-        // Gra ładowana lokalnie z assets/game/ -> działa całkowicie offline
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onConsoleMessage(message: ConsoleMessage): Boolean {
+                Log.d(
+                    "MarioWebView",
+                    "${message.message()} -- from line ${message.lineNumber()} of ${message.sourceId()}"
+                )
+                return true
+            }
+        }
+
         webView.loadUrl("file:///android_asset/game/index.html")
     }
 
